@@ -1,7 +1,5 @@
 # 3D_spatial_positioning
 
-> 知识库归档策略：项目内文档先随代码维护，`E:\知识库` 不再自动同步；等明确要求“归档”时再统一整理同步到知识库。
-
 本项目已经整理为一个跨平台 qmake 工程，Ubuntu 和 Windows 共用 `3D_spatial_positioning/` 下的同一套源码。
 
 - 工程入口：`3D_spatial_positioning/3D_spatial_positioning.pro`
