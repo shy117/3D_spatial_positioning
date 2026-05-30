@@ -132,6 +132,7 @@ private:
     imgLR img_rectified,img_rectified_gray;
     cv::Mat left_map1, left_map2, right_map1, right_map2, Q;
     cv::Mat Left_nice_line;
+    QString lastPointCloudFile;
     int flagCloud=0;
 
     //CloudViewerThread *thread;

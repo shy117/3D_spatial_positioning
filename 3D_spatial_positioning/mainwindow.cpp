@@ -16,6 +16,13 @@ static cv::Mat readImage(const QString &filePath)
     return cv::imdecode(buffer, cv::IMREAD_COLOR);
 }
 
+static void reprojectSgbmDisparityTo3D(const cv::Mat &disparity, cv::Mat &points3d, const cv::Mat &q)
+{
+    cv::Mat disparity32f;
+    disparity.convertTo(disparity32f, CV_32F, 1.0 / 16.0);
+    cv::reprojectImageTo3D(disparity32f, points3d, q);
+}
+
 MainWindow::MainWindow(QWidget *parent)
    : QMainWindow(parent)
    , ui(new Ui::MainWindow)
@@ -330,7 +337,7 @@ void MainWindow::on_pushButton_5_clicked()
         //ui->textEdit->append("绘制等间距平行线，检查立体校正的效果");
 
         // 计算像素点的3D坐标（左相机坐标系下）
-        cv::reprojectImageTo3D(disp, points_3d, Q);
+        reprojectSgbmDisparityTo3D(disp, points_3d, Q);
 
         // 创建窗口并设置鼠标回调函数
         cv::namedWindow("Left_nice_line");
@@ -467,7 +474,7 @@ double calculate_5ci(double X)
 // 测距
 void MainWindow::Measure_distance(int x,int y)
 {
-    cv::reprojectImageTo3D(disp, points_3d, Q);
+    reprojectSgbmDisparityTo3D(disp, points_3d, Q);
     cv::Vec3f point_3d_vec = points_3d.at<cv::Vec3f>(y, x);
 
     double x_3d = static_cast<double>(point_3d_vec[0]);
@@ -654,8 +661,29 @@ void MainWindow::on_action_6_triggered()
 void MainWindow::make_cloud()
 {
 #ifndef HAVE_PCL
-    QMessageBox::information(this, "提示", "当前构建未启用 PCL/VTK，点云生成与显示功能暂不可用。");
-    ui->textEdit->append("当前构建未启用 PCL/VTK，点云生成与显示功能暂不可用。");
+    if(!disp.empty() && !img_rectified.imgL.empty())
+    {
+        reprojectSgbmDisparityTo3D(disp, points_3d, Q);
+        const std::string time_str = getTime();
+        const QString fileName = QString("imgs/pcd/PointCloud_%1.ply").arg(QString::fromStdString(time_str));
+
+        QString message;
+        if (SVMethod.savePointCloudAsPly(fileName, points_3d, img_rectified.imgL, &message)) {
+            lastPointCloudFile = fileName;
+            ui->textEdit->append("生成 PLY 点云图：" + fileName);
+            ui->textEdit->append(message);
+            QMessageBox::information(this, "点云已生成", "已生成 PLY 点云文件：\n" + fileName + "\n\n可使用 CloudCompare、MeshLab 或 Blender 打开。");
+        } else {
+            ui->textEdit->append("PLY 点云生成失败：" + message);
+            QMessageBox::critical(this, "错误", "PLY 点云生成失败：\n" + message);
+        }
+    }
+    else
+    {
+        std::cerr << "信息不足,无法生成点云图" << std::endl;
+        ui->textEdit->append("信息不足,无法生成点云图");
+        QMessageBox::critical(this,"错误","信息不足,无法生成点云图");
+    }
 #else
     if(!disp.empty() && !img_rectified.imgL.empty())
     {
@@ -665,7 +693,7 @@ void MainWindow::make_cloud()
             return;
         }
         // 计算像素点的3D坐标（左相机坐标系下）
-        cv::reprojectImageTo3D(disp, points_3d, Q);
+        reprojectSgbmDisparityTo3D(disp, points_3d, Q);
         // 构建点云--Point_XYZRGBA格式
         pointcloud = SVMethod.DepthColor2Cloud(points_3d, img_rectified.imgL);
         // 显示点云
@@ -679,6 +707,7 @@ void MainWindow::make_cloud()
         std::string filename = "imgs/pcd/PointCloud_" + time_str + ".pcd";
         pcl::io::savePCDFile(filename, *pointcloud);
         fileName = QString::fromStdString(filename);
+        lastPointCloudFile = fileName;
 
         // 打开测试点云
         if (fileName.isEmpty()) {
@@ -741,8 +770,28 @@ void MainWindow::make_cloud()
 void MainWindow::on_action_2_triggered()
 {
 #ifndef HAVE_PCL
-    QMessageBox::information(this, "提示", "当前构建未启用 PCL/VTK，点云保存功能暂不可用。");
-    ui->textEdit->append("当前构建未启用 PCL/VTK，点云保存功能暂不可用。");
+    if(!disp.empty() && !img_rectified.imgL.empty())
+    {
+        reprojectSgbmDisparityTo3D(disp, points_3d, Q);
+        const std::string time_str = getTime();
+        const QString fileName = QString("imgs/pcd/PointCloud_%1.ply").arg(QString::fromStdString(time_str));
+
+        QString message;
+        if (SVMethod.savePointCloudAsPly(fileName, points_3d, img_rectified.imgL, &message)) {
+            lastPointCloudFile = fileName;
+            ui->textEdit->append("保存 PLY 点云图：" + fileName);
+            ui->textEdit->append(message);
+        } else {
+            ui->textEdit->append("PLY 点云保存失败：" + message);
+            QMessageBox::critical(this, "错误", "PLY 点云保存失败：\n" + message);
+        }
+    }
+    else
+    {
+        std::cerr << "没有点云信息,无法保存" << std::endl;
+        ui->textEdit->append("没有点云信息,无法保存");
+        QMessageBox::critical(this,"错误","没有点云信息,无法保存");
+    }
 #else
     if(pointcloud != NULL)
     {

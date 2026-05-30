@@ -8,7 +8,7 @@
 - 项目说明：`3D_spatial_positioning_项目文档.md`
 - 版本记录：`VERSION.md`
 
-Windows 当前本地环境未启用 PCL/VTK，点云功能暂时降级；Ubuntu 完整环境仍通过 `HAVE_PCL` 保留点云生成、保存和显示。
+Windows 当前本地环境未启用 PCL/VTK，点云功能改为直接导出 ASCII PLY 文件；Ubuntu 完整环境仍通过 `HAVE_PCL` 保留 PCL 点云生成、保存和显示。
 
 # 笔记
 

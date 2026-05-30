@@ -53,6 +53,7 @@ public:
     imgLR rectifyImage(cv::Mat image1, cv::Mat image2, cv::Mat left_map1, cv::Mat left_map2, cv::Mat right_map1, cv::Mat right_map2);
     void stereoMatchSGBM(const cv::Mat& left_image, const cv::Mat& right_image, cv::Mat *disp, cv::Mat *filteredImg, cv::Mat * filter_disp, cv::Mat *filt_Color);
     cv::Mat hw3ToN3(const cv::Mat& points);
+    bool savePointCloudAsPly(const QString &filename, const cv::Mat& points_3d, const cv::Mat& colors, QString *errorMessage = nullptr);
 #ifdef HAVE_PCL
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr DepthColor2Cloud(const cv::Mat& points_3d, const cv::Mat& colors);
     void view_cloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr& pointcloud);
