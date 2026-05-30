@@ -1,5 +1,7 @@
 # 3D_spatial_positioning
 
+> 知识库归档策略：项目内文档先随代码维护，`E:\知识库` 不再自动同步；等明确要求“归档”时再统一整理同步到知识库。
+
 本项目已经整理为一个跨平台 qmake 工程，Ubuntu 和 Windows 共用 `3D_spatial_positioning/` 下的同一套源码。
 
 - 工程入口：`3D_spatial_positioning/3D_spatial_positioning.pro`
@@ -8,7 +10,7 @@
 - 项目说明：`3D_spatial_positioning_项目文档.md`
 - 版本记录：`VERSION.md`
 
-Windows 当前本地环境未启用 PCL/VTK，点云功能改为直接导出 ASCII PLY 文件；Ubuntu 完整环境仍通过 `HAVE_PCL` 保留 PCL 点云生成、保存和显示。
+Windows 当前本地环境未启用 PCL/VTK，点云功能改为导出 ASCII PLY 文件，并提供 Qt 内置预览窗口；Ubuntu 完整环境仍通过 `HAVE_PCL` 保留 PCL 点云生成、保存和显示。
 
 # 笔记
 

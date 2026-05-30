@@ -9,11 +9,13 @@ PROJECT_ROOT = $$clean_path($$PWD/..)
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    method.cpp
+    method.cpp \
+    pointcloudpreviewwidget.cpp
 
 HEADERS += \
     mainwindow.h \
     method.h \
+    pointcloudpreviewwidget.h \
     stereoconfig.h
 
 FORMS += \

@@ -1,5 +1,25 @@
 # 版本记录
 
+## v0.1.2-local
+
+- 状态：本地版本，暂不推送 GitHub
+- 日期：2026-05-30
+- 本地提交：见 `git rev-parse HEAD`
+- 本地标签：`v0.1.2-local`
+- 上一版本：`v0.1.1-local`
+
+### 本地整理内容
+
+1. Windows 无 PCL/VTK 构建新增 Qt 内置点云预览窗口。
+2. 点击“生成点云图”时继续保存 ASCII PLY，同时自动弹出点云预览。
+3. 菜单“点云图 -> 打开点云图”支持打开已有 `imgs/pcd/*.ply` 文件预览。
+4. 项目文档增加知识库归档策略：不再实时同步 `E:\知识库`，等待明确归档指令后统一同步。
+
+### 验证记录
+
+- Windows 构建命令：`powershell -ExecutionPolicy Bypass -File scripts\build_windows_qt6_mingw.ps1`
+- 验证结果：`qmake`、`mingw32-make`、`windeployqt` 通过
+
 ## v0.1.1-local
 
 - 状态：本地版本，暂不推送 GitHub

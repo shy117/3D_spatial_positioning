@@ -50,6 +50,8 @@ private slots:
 
     void on_action_2_triggered();
 
+    void on_actionOpenPointCloud_triggered();
+
     //void on_action_triggered();
 
     void complete_method();
@@ -106,6 +108,10 @@ private:
     void make_cloud();
 
     void clearData();
+
+    void showPointCloudPreview(const QString &fileName);
+
+    void openPointCloudPreview();
 
 
 private:

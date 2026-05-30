@@ -1,6 +1,11 @@
 #include "mainwindow.h"
 
+#include "pointcloudpreviewwidget.h"
+
+#include <QDialog>
 #include <QFile>
+#include <QLabel>
+#include <QVBoxLayout>
 
 void mouse_callback(int event, int x, int y, int flags, void* param);
 
@@ -672,7 +677,7 @@ void MainWindow::make_cloud()
             lastPointCloudFile = fileName;
             ui->textEdit->append("生成 PLY 点云图：" + fileName);
             ui->textEdit->append(message);
-            QMessageBox::information(this, "点云已生成", "已生成 PLY 点云文件：\n" + fileName + "\n\n可使用 CloudCompare、MeshLab 或 Blender 打开。");
+            showPointCloudPreview(fileName);
         } else {
             ui->textEdit->append("PLY 点云生成失败：" + message);
             QMessageBox::critical(this, "错误", "PLY 点云生成失败：\n" + message);
@@ -728,6 +733,66 @@ void MainWindow::make_cloud()
         QMessageBox::critical(this,"错误","信息不足,无法生成点云图");
     }
 #endif
+}
+
+void MainWindow::showPointCloudPreview(const QString &fileName)
+{
+    QDialog *dialog = new QDialog(this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(QStringLiteral("Point Cloud Preview"));
+    dialog->resize(900, 680);
+
+    QVBoxLayout *layout = new QVBoxLayout(dialog);
+    layout->setContentsMargins(10, 10, 10, 10);
+    layout->setSpacing(8);
+
+    QLabel *pathLabel = new QLabel(QStringLiteral("Saved: %1").arg(QDir::toNativeSeparators(fileName)), dialog);
+    pathLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    layout->addWidget(pathLabel);
+
+    PointCloudPreviewWidget *preview = new PointCloudPreviewWidget(dialog);
+    QString previewError;
+    if (!preview->setCloud(points_3d, img_rectified.imgL, &previewError)) {
+        pathLabel->setText(QStringLiteral("Saved: %1\nPreview failed: %2")
+                               .arg(QDir::toNativeSeparators(fileName), previewError));
+    }
+    layout->addWidget(preview, 1);
+
+    dialog->show();
+}
+
+void MainWindow::openPointCloudPreview()
+{
+    const QString fileName = QFileDialog::getOpenFileName(this,
+                                                          QStringLiteral("Open Point Cloud"),
+                                                          QStringLiteral("imgs/pcd"),
+                                                          QStringLiteral("Point cloud (*.ply)"));
+    if (fileName.isEmpty()) {
+        return;
+    }
+
+    QDialog *dialog = new QDialog(this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(QStringLiteral("Point Cloud Preview"));
+    dialog->resize(900, 680);
+
+    QVBoxLayout *layout = new QVBoxLayout(dialog);
+    layout->setContentsMargins(10, 10, 10, 10);
+    layout->setSpacing(8);
+
+    QLabel *pathLabel = new QLabel(QStringLiteral("Opened: %1").arg(QDir::toNativeSeparators(fileName)), dialog);
+    pathLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    layout->addWidget(pathLabel);
+
+    PointCloudPreviewWidget *preview = new PointCloudPreviewWidget(dialog);
+    QString previewError;
+    if (!preview->setCloudFromPly(fileName, &previewError)) {
+        pathLabel->setText(QStringLiteral("Opened: %1\nPreview failed: %2")
+                               .arg(QDir::toNativeSeparators(fileName), previewError));
+    }
+    layout->addWidget(preview, 1);
+
+    dialog->show();
 }
 
 
@@ -813,6 +878,11 @@ void MainWindow::on_action_2_triggered()
     }
 #endif
 
+}
+
+void MainWindow::on_actionOpenPointCloud_triggered()
+{
+    openPointCloudPreview();
 }
 
 

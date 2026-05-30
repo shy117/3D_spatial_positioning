@@ -1,5 +1,7 @@
 # 3D_spatial_positioning 项目文档
 
+> 知识库归档策略：本文件作为项目内主文档随代码更新；`E:\知识库` 中的文档不做实时同步，等明确要求“归档”时再统一同步。
+
 ## 项目定位
 
 `3D_spatial_positioning` 是一个基于双目摄像机的三维空间定位系统。项目使用 Qt Widgets 提供界面，OpenCV 完成双目校正、立体匹配、视差滤波和三维重投影，PCL/VTK 在完整构建中负责点云保存与显示。
@@ -16,6 +18,7 @@
 │  ├─ mainwindow.h/.cpp/.ui
 │  ├─ method.h/.cpp
 │  ├─ stereoconfig.h
+│  ├─ pointcloudpreviewwidget.h/.cpp    # Windows 无 PCL 时的 Qt 点云预览
 │  └─ cloudviewerthread.h/.cpp          # 仅 HAVE_PCL 构建使用
 ├─ 测试场景/                              # 左右目测试图片
 ├─ assets/                              # README 截图资源
@@ -160,8 +163,9 @@ Windows 当前构建不依赖 PCL/VTK。点击“生成点云图”时，程序�
 2. 调用 `cv::reprojectImageTo3D()` 生成 `CV_32FC3` 三维坐标矩阵。
 3. 过滤无效点、过远点和异常坐标。
 4. 将有效点和左图颜色写入 ASCII PLY 文件。
+5. 自动打开 Qt 内置点云预览窗口，可鼠标拖动旋转、滚轮缩放。
 
-该方案保留了点云生成能力，缺少的是 PCLVisualizer 内置点云窗口。Windows 下可使用外部点云工具查看 `.ply` 文件。
+该方案保留了点云生成能力，并避免依赖 CloudCompare、MeshLab、Blender 等外部软件。菜单“点云图 -> 打开点云图”可重新打开已有 `imgs/pcd/*.ply` 文件进行预览。
 
 ### 控制台 UTF-8
 
@@ -232,8 +236,8 @@ build/windows-qt6-mingw/bin/3D_spatial_positioning.exe
 
 ## 当前限制和后续待办
 
-1. Windows 当前构建未启用 PCL/VTK，点云已改为导出 PLY 文件，暂不提供内置 PCLVisualizer 显示窗口。
-2. Windows 如需内置点云显示功能，建议准备 ABI 匹配的 MSVC 版本 Qt、OpenCV、PCL、VTK、Boost，再扩展 `.pro` 的 `win32` 分支。
+1. Windows 当前构建未启用 PCL/VTK，点云已改为导出 PLY 文件，并使用 Qt 自绘窗口提供轻量预览；该预览适合检查点云形态，不等同于 PCLVisualizer 的完整三维分析能力。
+2. Windows 如需 PCLVisualizer 级别的显示和分析功能，建议准备 ABI 匹配的 MSVC 版本 Qt、OpenCV、PCL、VTK、Boost，再扩展 `.pro` 的 `win32` 分支。
 3. 测距点击坐标仍依赖固定偏移，后续应改为基于 `QLabel::geometry()` 和图像缩放比例动态换算。
 4. 相机编号当前为常量 `0`，后续应做成 UI 配置。
 5. `build/` 目录为构建产物，不应作为源码维护对象。

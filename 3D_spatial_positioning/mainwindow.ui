@@ -350,6 +350,7 @@
      <string>点云图</string>
     </property>
     <addaction name="action_6"/>
+    <addaction name="actionOpenPointCloud"/>
     <addaction name="action_2"/>
    </widget>
    <widget class="QMenu" name="menu_3">
@@ -402,6 +403,11 @@
   <action name="action_6">
    <property name="text">
     <string>生成点云图</string>
+   </property>
+  </action>
+  <action name="actionOpenPointCloud">
+   <property name="text">
+    <string>打开点云图</string>
    </property>
   </action>
  </widget>
