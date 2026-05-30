@@ -5,27 +5,29 @@
 #include <opencv2/ximgproc.hpp>
 #include <opencv2/ximgproc/disparity_filter.hpp>
 #include <iostream>
-#include <Eigen/Dense>
 
+#ifdef HAVE_PCL
 #include <pcl/point_types.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/filters/extract_indices.h>
 #include <pcl/visualization/cloud_viewer.h>
+#endif
 #include <vector>
 #include <algorithm>
 
 #include <vector>
 #include "stereoconfig.h"
-#include "cloudviewerthread.h"
 
 #include <QString>
 #include <QFileDialog>
 #include <QThread>
 
 
+#ifdef HAVE_PCL
 using namespace pcl;
 using namespace pcl::visualization;
+#endif
 using namespace std;
 using namespace cv;
 
@@ -51,10 +53,12 @@ public:
     imgLR rectifyImage(cv::Mat image1, cv::Mat image2, cv::Mat left_map1, cv::Mat left_map2, cv::Mat right_map1, cv::Mat right_map2);
     void stereoMatchSGBM(const cv::Mat& left_image, const cv::Mat& right_image, cv::Mat *disp, cv::Mat *filteredImg, cv::Mat * filter_disp, cv::Mat *filt_Color);
     cv::Mat hw3ToN3(const cv::Mat& points);
+#ifdef HAVE_PCL
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr DepthColor2Cloud(const cv::Mat& points_3d, const cv::Mat& colors);
     void view_cloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr& pointcloud);
     void save_cloud(std::string filename, const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr& pointcloud);
     void view_cloud_test(QString fileName);
+#endif
 
     //CloudViewerThread(QObject *parent = nullptr) : QThread(parent) {}
 };

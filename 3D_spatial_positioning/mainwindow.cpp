@@ -1,6 +1,20 @@
 #include "mainwindow.h"
 
+#include <QFile>
+
 void mouse_callback(int event, int x, int y, int flags, void* param);
+
+static cv::Mat readImage(const QString &filePath)
+{
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return cv::Mat();
+    }
+
+    const QByteArray bytes = file.readAll();
+    std::vector<uchar> buffer(bytes.begin(), bytes.end());
+    return cv::imdecode(buffer, cv::IMREAD_COLOR);
+}
 
 MainWindow::MainWindow(QWidget *parent)
    : QMainWindow(parent)
@@ -9,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
    ui->setupUi(this);
    SVMethod.getRectifyTransform(img_width, img_height, config, &left_map1, &left_map2, &right_map1, &right_map2, &Q);
    //ui->textEdit->append("获取畸变校正和立体校正的映射变换矩阵、重投影矩阵");
+   QDir().mkpath("imgs/pcd");
    ui->label_5->setAttribute(Qt::WA_TransparentForMouseEvents, false);
    timer = new QTimer(this);
 
@@ -81,7 +96,12 @@ void MainWindow::open_camera()
             timer = nullptr;
         }
     }
-    if (!capture.open(2)) { // 打开默认摄像头
+    const int cameraIndex = 0;
+#ifdef Q_OS_WIN
+    if (!capture.open(cameraIndex, cv::CAP_DSHOW)) {
+#else
+    if (!capture.open(cameraIndex)) {
+#endif
         QMessageBox::critical(this, "错误", "无法打开双目相机");
         return;
     }
@@ -110,7 +130,7 @@ void MainWindow::open_camera()
             // 重新创建并初始化定时器
 
             timer = new QTimer(this);
-            timer->setInterval(1000 / rate);
+            timer->setInterval(rate > 0 ? static_cast<int>(1000 / rate) : 33);
             connect(timer, &QTimer::timeout, this, &MainWindow::nextFrame); // 使用C++11语法连接信号和槽
             timer->start();
 
@@ -154,7 +174,7 @@ void MainWindow::open_Images()
             QStringList filePaths = filedialog.selectedFiles();
             QString image_left =filePaths[0];
             qDebug() << image_left;
-            imgBGR.imgL = cv::imread(image_left.toStdString());
+            imgBGR.imgL = readImage(image_left);
         }
 
         //读取右图片
@@ -170,7 +190,7 @@ void MainWindow::open_Images()
             QStringList filePaths = filedialog2.selectedFiles();
             QString image_right =filePaths[0];
             qDebug() << image_right;
-            imgBGR.imgR = cv::imread(image_right.toStdString());
+            imgBGR.imgR = readImage(image_right);
         }
 
         if (imgBGR.imgL.empty()||imgBGR.imgR.empty())
@@ -633,6 +653,10 @@ void MainWindow::on_action_6_triggered()
 // 生成点云图
 void MainWindow::make_cloud()
 {
+#ifndef HAVE_PCL
+    QMessageBox::information(this, "提示", "当前构建未启用 PCL/VTK，点云生成与显示功能暂不可用。");
+    ui->textEdit->append("当前构建未启用 PCL/VTK，点云生成与显示功能暂不可用。");
+#else
     if(!disp.empty() && !img_rectified.imgL.empty())
     {
         if(flagCloud > 0)
@@ -674,6 +698,7 @@ void MainWindow::make_cloud()
         ui->textEdit->append("信息不足,无法生成点云图");
         QMessageBox::critical(this,"错误","信息不足,无法生成点云图");
     }
+#endif
 }
 
 
@@ -715,6 +740,10 @@ void MainWindow::make_cloud()
 // 工具栏-保存点云图
 void MainWindow::on_action_2_triggered()
 {
+#ifndef HAVE_PCL
+    QMessageBox::information(this, "提示", "当前构建未启用 PCL/VTK，点云保存功能暂不可用。");
+    ui->textEdit->append("当前构建未启用 PCL/VTK，点云保存功能暂不可用。");
+#else
     if(pointcloud != NULL)
     {
         // 尝试保存点云数据到.pcd文件
@@ -733,6 +762,7 @@ void MainWindow::on_action_2_triggered()
         QMessageBox::critical(this,"错误","没有点云信息,无法保存");
 
     }
+#endif
 
 }
 
@@ -779,4 +809,3 @@ void MainWindow::on_pushButton_10_clicked()
 {
     ui->textEdit->clear();
 }
-

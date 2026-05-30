@@ -142,6 +142,7 @@ cv::Mat Method::hw3ToN3(const cv::Mat& points) {
 }
 
 // 深度图转换点云图
+#ifdef HAVE_PCL
 pcl::PointCloud<pcl::PointXYZRGBA>::Ptr Method::DepthColor2Cloud(const cv::Mat& points_3d, const cv::Mat& colors) {
     int size = points_3d.total();
 
@@ -246,3 +247,4 @@ void Method::view_cloud_test(QString fileName)
         viewer->spinOnce(100, true); // 100ms一次刷新
     }
 }
+#endif

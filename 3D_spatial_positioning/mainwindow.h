@@ -10,12 +10,16 @@
 #include <QMouseEvent>
 #include <QMessageBox>
 #include <QThread>
+#include <QDir>
 
 
 #include <opencv2/opencv.hpp>
+#include <opencv2/videoio.hpp>
 #include "stereoconfig.h"
 #include "method.h"
+#ifdef HAVE_PCL
 #include "cloudviewerthread.h"
+#endif
 
 #include "ui_mainwindow.h"
 
@@ -120,7 +124,9 @@ private:
 
     StereoConfig config;// 读取相机内参和外参
     cv::Mat points_3d;
+#ifdef HAVE_PCL
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr pointcloud;
+#endif
     cv::Mat filt_Color_bgr,img_bgr;
     cv::Mat disp,filteredImg,filter_disp,filt_Color;
     imgLR img_rectified,img_rectified_gray;

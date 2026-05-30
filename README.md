@@ -1,3 +1,15 @@
+# 3D_spatial_positioning
+
+本项目已经整理为一个跨平台 qmake 工程，Ubuntu 和 Windows 共用 `3D_spatial_positioning/` 下的同一套源码。
+
+- 工程入口：`3D_spatial_positioning/3D_spatial_positioning.pro`
+- Windows 一键构建：`powershell -ExecutionPolicy Bypass -File scripts\build_windows_qt6_mingw.ps1`
+- Windows 输出：`build/windows-qt6-mingw/bin/3D_spatial_positioning.exe`
+- 项目说明：`3D_spatial_positioning_项目文档.md`
+- 版本记录：`VERSION.md`
+
+Windows 当前本地环境未启用 PCL/VTK，点云功能暂时降级；Ubuntu 完整环境仍通过 `HAVE_PCL` 保留点云生成、保存和显示。
+
 # 笔记
 
 ## 配置环境

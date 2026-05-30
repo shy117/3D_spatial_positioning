@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <vector>
-#include <Eigen/Dense>
 #include <opencv2/opencv.hpp>
 
 class StereoConfig {
